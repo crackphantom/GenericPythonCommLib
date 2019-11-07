@@ -21,16 +21,38 @@ except(ImportError, ValueError, AttributeError):
         LOGGER.exception("The exception when loading was")
 
 
-def getNewSyncHttpClient(httplib=None):
-    # based on requested lib or ystem configuration, instantiate a new http client
-    if httplib == None or httplib not in SYNC_CLIENT_CLASSES:
-        #TODO: try to load a default
-        raise RuntimeError("Unable to create a sync http client from configured library")
-    return SYNC_CLIENT_CLASSES[httplib]()
+def getNewSyncHttpClient(whitelist=None, blacklist=None):
+    if whitelist:
+        for httplib in whitelist:
+            if httplib != None and httplib in SYNC_CLIENT_CLASSES:
+                return SYNC_CLIENT_CLASSES[httplib]()
+        # fail if nothing found on the whitelist
+        raise RuntimeError("Unable to create a sync http client from configured library, libs provided in whitelist were unavailable")
+    if blacklist is None:
+        # nothing is blacklisted if empty, so we will use first lib found in next loop
+        blacklist = []
 
-def getNewAsyncHttpClient(httplib=None):
-    # based on requested lib or ystem configuration, instantiate a new http client
-    if httplib == None or httplib not in SYNC_CLIENT_CLASSES:
-        #TODO: try to load a default
-        raise RuntimeError("Unable to create an async http client from configured library")
-    return SYNC_CLIENT_CLASSES[httplib]()
+    for httplib in SYNC_CLIENT_CLASSES.iterkeys():
+        if httplib != None and httplib not in blacklist:
+            # based on requested lib or system configuration, instantiate a new http client
+            return SYNC_CLIENT_CLASSES[httplib]()
+    
+    #Nothing loaded that was acceptable given the 2 lists or lack there of
+    raise RuntimeError("Unable to create a sync http client from configured library")
+
+def getNewAsyncHttpClient(whitelist=None, blacklist=None):
+    if whitelist:
+        for httplib in whitelist:
+            if httplib != None and httplib in SYNC_CLIENT_CLASSES:
+                return SYNC_CLIENT_CLASSES[httplib]()
+        # fail if nothing found on the whitelist
+        raise RuntimeError("Unable to create an async http client from configured library, libs provided in whitelist were unavailable")
+    if blacklist is None:
+        # nothing is blacklisted if empty, so we will use first lib found in next loop
+        blacklist = []
+
+    for httplib in SYNC_CLIENT_CLASSES.iterkeys():
+        if httplib != None and httplib not in blacklist:
+            # based on requested lib or system configuration, instantiate a new http client
+            return SYNC_CLIENT_CLASSES[httplib]()
+    raise RuntimeError("Unable to create an async http client from configured library")
