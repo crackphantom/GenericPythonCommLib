@@ -31,6 +31,7 @@ class HttpClient(object):
         resp = wrappers.HttpResponse()
         try:
             responseFile = urllib2.urlopen(req, body)
+            resp.url = responseFile.geturl()
             resp.statusCode = responseFile.code
             resp.statusText = responseFile.msg
             for rawHeaderStr in responseFile.info().headers:

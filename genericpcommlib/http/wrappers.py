@@ -13,6 +13,7 @@ class HttpResponse(object):
     
         # http response status line
         self.statusProtocol = 'HTTP/1.1' # default
+        self.url = None # the url you were sent to (may stay the same as request or may change)
         self.statusCode = None
         self.parsedStatusCode = None # string turned into a number
         self.statusText = None
