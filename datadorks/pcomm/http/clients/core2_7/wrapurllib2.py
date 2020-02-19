@@ -4,7 +4,7 @@ Created on Oct 23, 2019
 @author: crackphantom
 '''
 import urllib2
-from genericpcommlib.http import wrappers
+from datadorks.pcomm.http import wrappers
 
 
 class HttpClient(object):
