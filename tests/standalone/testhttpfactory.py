@@ -3,18 +3,13 @@ Created on Oct 23, 2019
 
 @author: crackphantom
 '''
-# Uncomment to set logging at debug
 # first thing so other loggers are properly set when loading modules etc...
-# import logging
-# logging.basicConfig(level=logging.DEBUG)
+# set to DEBUG for troubleshooting
+import logging
+logging.basicConfig(level=logging.ERROR)
 
 import unittest
 from datadorks.pcomm.http.clients import factory
-
-# address 'No handlers could be found for logger "root"' which annoys me
-# code used to address doesn't belong in the lib we're testing
-import logging
-logging.basicConfig()
 
 
 class TestHttpFactory(unittest.TestCase):

@@ -3,6 +3,8 @@ Created on Oct 23, 2019
 
 @author: crackphantom
 '''
+from datadorks.pcomm.http.consts import EMPTY_BODY, GET_METHOD
+
 
 class HttpResponse(object):
 
@@ -27,3 +29,26 @@ class HttpResponse(object):
     
         # http response body
         self.body = '' # raw text
+
+class HttpRequest(object):
+    
+    def __init__(self, url, method = GET_METHOD):
+        self.url = url
+        self.method = method
+        self.headers = {}
+        self.body = EMPTY_BODY
+        self.parameters = {}
+        self.files = {}
+        
+        self.multipart = False
+
+    def addHeader(self, name, value):
+        self.headers[name] = value
+    
+    def addParameter(self, name, value):
+        self.parameters[name] = value
+    
+    def addFile(self, name, filename, value, contentType):
+        self.files[name] = {'filename': filename,
+                            'value': value,
+                            'Content-Type': contentType}

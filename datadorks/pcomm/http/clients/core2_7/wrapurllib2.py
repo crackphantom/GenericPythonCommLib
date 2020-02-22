@@ -4,7 +4,7 @@ Created on Oct 23, 2019
 @author: crackphantom
 '''
 import urllib2
-from datadorks.pcomm.http import wrappers
+from datadorks.pcomm.http import wrappers, utils
 
 
 class HttpClient(object):
@@ -19,18 +19,27 @@ class HttpClient(object):
         '''
         Constructor
         '''
-    def doRequest(self, verb, url, headers, body):
-        # headers is a dict
-        # body is a string
+    def doRequest(self, wrappedhttprequest):
+        # was verb, url, headers, body
+        # where headers is a dict and body is a string
 
-        req = urllib2.Request(url)
-        if headers:
-            for key, value in headers.iteritems():
+        req = urllib2.Request(wrappedhttprequest.url)
+        if wrappedhttprequest.headers:
+            for key, value in wrappedhttprequest.headers.iteritems():
                 req.add_header(key, value)
-        req.get_method = lambda: verb
+        req.get_method = lambda: wrappedhttprequest.method
         resp = wrappers.HttpResponse()
         try:
-            responseFile = urllib2.urlopen(req, body)
+            if wrappedhttprequest.multipart:
+                boundary = utils.getMultiPartBoundary()
+                body = utils.getMultiPartBody(boundary, wrappedhttprequest)
+                req.add_data(body)
+                contentType = 'multipart/form-data; boundary={}'.format(boundary)
+                req.add_header('Content-type', contentType)
+                req.add_header('Content-length', len(body))
+                responseFile = urllib2.urlopen(req)
+            else:
+                responseFile = urllib2.urlopen(req, wrappedhttprequest.body)
             resp.url = responseFile.geturl()
             resp.statusCode = responseFile.code
             resp.statusText = responseFile.msg

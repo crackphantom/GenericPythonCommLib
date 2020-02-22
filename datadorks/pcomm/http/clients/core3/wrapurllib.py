@@ -4,7 +4,7 @@ Created on Oct 23, 2019
 @author: crackphantom
 '''
 import urllib.request
-from datadorks.pcomm.http import wrappers
+from datadorks.pcomm.http import wrappers, utils
 
 UTF8_BYTE = 'utf-8'
 
@@ -21,19 +21,27 @@ class HttpClient(object):
         '''
         Constructor
         '''
-    def doRequest(self, verb, url, headers, body):
-        # headers is a dict
-        # body is a string
+    def doRequest(self, wrappedhttprequest):
 
-        req = urllib.request.Request(url, method=verb)
-        if headers:
-            for key, value in headers.items():
+        req = urllib.request.Request(wrappedhttprequest.url, method=wrappedhttprequest.method)
+        if wrappedhttprequest.headers:
+            for key, value in wrappedhttprequest.headers.items():
                 req.add_header(key, value)
-        # req.get_method = lambda: verb
+
         resp = wrappers.HttpResponse()
         try:
-            # TODO: https://stackoverflow.com/questions/9746303/how-do-i-send-a-post-request-as-a-json/26876308#26876308
-            responseFile = urllib.request.urlopen(req, body.encode(UTF8_BYTE))
+            encodedBody = None
+            if wrappedhttprequest.multipart:
+                boundary = utils.getMultiPartBoundary()
+                body = utils.getMultiPartBody(boundary, wrappedhttprequest)
+                encodedBody = body.encode(UTF8_BYTE)
+                contentType = 'multipart/form-data; boundary={}'.format(boundary)
+                req.add_header('Content-type', contentType)
+                req.add_header('Content-length', len(encodedBody))
+            elif wrappedhttprequest.body is not None:
+                encodedBody = wrappedhttprequest.body.encode(UTF8_BYTE)
+
+            responseFile = urllib.request.urlopen(req, encodedBody)
             resp.url = responseFile.geturl()
             resp.statusCode = responseFile.code
             resp.statusText = responseFile.msg
